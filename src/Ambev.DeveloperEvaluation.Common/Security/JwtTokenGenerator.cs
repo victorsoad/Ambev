@@ -33,13 +33,16 @@ public class JwtTokenGenerator : IJwtTokenGenerator
     /// - Name (Username)
     /// - Role (User role)
     /// 
-    /// The token is valid for 8 hours from the moment of generation.
+    /// The token is valid for the configured hours from the moment of generation.
     /// </remarks>
     /// <exception cref="ArgumentNullException">Thrown when user or secret key is not provided.</exception>
     public string GenerateToken(IUser user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:SecretKey"]);
+        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:SecretKey"] ?? throw new ArgumentNullException("Jwt:SecretKey"));
+        var issuer = _configuration["Jwt:Issuer"] ?? "Ambev.DeveloperEvaluation";
+        var audience = _configuration["Jwt:Audience"] ?? "Ambev.DeveloperEvaluation.Users";
+        var expirationHours = int.TryParse(_configuration["Jwt:ExpirationHours"], out var hours) ? hours : 8;
 
         var claims = new[]
         {
@@ -51,7 +54,9 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddHours(8),
+            Expires = DateTime.UtcNow.AddHours(expirationHours),
+            Issuer = issuer,
+            Audience = audience,
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256Signature)

@@ -1,6 +1,7 @@
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Ambev.DeveloperEvaluation.Common.Security;
 
 namespace Ambev.DeveloperEvaluation.ORM.Seed;
 
@@ -8,6 +9,45 @@ public static class DataSeeder
 {
     public static async Task SeedAsync(DefaultContext context)
     {
+        // Seed Users
+        if (!await context.Users.AnyAsync())
+        {
+            var passwordHasher = new BCryptPasswordHasher();
+            var users = new List<User>
+            {
+                new User
+                {
+                    Username = "admin",
+                    Email = "admin@ambev.com",
+                    PasswordHash = passwordHasher.HashPassword("admin123"),
+                    Role = "Admin",
+                    IsActive = true,
+                    LastLogin = DateTime.UtcNow
+                },
+                new User
+                {
+                    Username = "user1",
+                    Email = "user1@ambev.com",
+                    PasswordHash = passwordHasher.HashPassword("user123"),
+                    Role = "User",
+                    IsActive = true,
+                    LastLogin = DateTime.UtcNow
+                },
+                new User
+                {
+                    Username = "user2",
+                    Email = "user2@ambev.com",
+                    PasswordHash = passwordHasher.HashPassword("user123"),
+                    Role = "User",
+                    IsActive = true,
+                    LastLogin = DateTime.UtcNow
+                }
+            };
+
+            await context.Users.AddRangeAsync(users);
+            await context.SaveChangesAsync();
+        }
+
         // Seed Products
         if (!await context.Products.AnyAsync())
         {

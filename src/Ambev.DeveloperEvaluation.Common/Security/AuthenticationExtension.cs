@@ -17,6 +17,8 @@ namespace Ambev.DeveloperEvaluation.Common.Security
             ArgumentException.ThrowIfNullOrWhiteSpace(secretKey);
 
             var key = Encoding.ASCII.GetBytes(secretKey);
+            var issuer = configuration["Jwt:Issuer"] ?? "Ambev.DeveloperEvaluation";
+            var audience = configuration["Jwt:Audience"] ?? "Ambev.DeveloperEvaluation.Users";
 
             services.AddAuthentication(x =>
             {
@@ -31,8 +33,10 @@ namespace Ambev.DeveloperEvaluation.Common.Security
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateIssuer = true,
+                    ValidIssuer = issuer,
+                    ValidateAudience = true,
+                    ValidAudience = audience,
                     ClockSkew = TimeSpan.Zero
                 };
             });

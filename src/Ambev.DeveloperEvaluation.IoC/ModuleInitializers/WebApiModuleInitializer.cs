@@ -11,9 +11,11 @@ namespace Ambev.DeveloperEvaluation.IoC.ModuleInitializers
     {
         public void Initialize(WebApplicationBuilder builder)
         {
-
             builder.Services.AddControllers();
             builder.Services.AddHealthChecks();
+            
+            // Registrar serviços de segurança
+            builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
         }
     }
 }
