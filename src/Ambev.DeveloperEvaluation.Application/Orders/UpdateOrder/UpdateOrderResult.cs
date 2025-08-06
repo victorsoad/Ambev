@@ -1,5 +1,3 @@
-using System;
-
 namespace Ambev.DeveloperEvaluation.Application.Orders.UpdateOrder
 {
     public class UpdateOrderResult

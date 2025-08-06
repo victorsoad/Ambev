@@ -1,5 +1,3 @@
-using System;
-
 namespace Ambev.DeveloperEvaluation.WebApi.Features.Orders.UpdateOrder
 {
     public class UpdateOrderResponse

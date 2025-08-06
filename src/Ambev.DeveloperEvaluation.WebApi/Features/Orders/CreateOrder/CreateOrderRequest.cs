@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Features.Orders.CreateOrder
