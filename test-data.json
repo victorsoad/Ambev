@@ -1,0 +1,135 @@
+{
+  "produtos_material_escolar": [
+    {
+      "nome": "Caderno 96 folhas",
+      "descricao": "Caderno espiral 96 folhas pautadas, capa dura",
+      "preco": 12.50,
+      "status": 1
+    },
+    {
+      "nome": "Lápis HB",
+      "descricao": "Caixa com 12 lápis HB grafite",
+      "preco": 8.90,
+      "status": 1
+    },
+    {
+      "nome": "Caneta Azul",
+      "descricao": "Pacote com 10 canetas esferográficas azuis",
+      "preco": 15.80,
+      "status": 1
+    },
+    {
+      "nome": "Borracha",
+      "descricao": "Borracha branca escolar, tamanho médio",
+      "preco": 2.50,
+      "status": 1
+    },
+    {
+      "nome": "Régua 30cm",
+      "descricao": "Régua plástica transparente 30cm",
+      "preco": 4.20,
+      "status": 1
+    },
+    {
+      "nome": "Tesoura Escolar",
+      "descricao": "Tesoura escolar com pontas arredondadas",
+      "preco": 6.75,
+      "status": 1
+    },
+    {
+      "nome": "Cola Branca",
+      "descricao": "Cola branca escolar 90ml",
+      "preco": 3.90,
+      "status": 1
+    },
+    {
+      "nome": "Mochila Escolar",
+      "descricao": "Mochila escolar com alças ajustáveis",
+      "preco": 45.00,
+      "status": 1
+    },
+    {
+      "nome": "Estojo",
+      "descricao": "Estojo escolar com zíper, múltiplos compartimentos",
+      "preco": 18.50,
+      "status": 1
+    },
+    {
+      "nome": "Lápis de Cor",
+      "descricao": "Caixa com 24 lápis de cor",
+      "preco": 22.80,
+      "status": 1
+    }
+  ],
+  "pedidos_exemplo": [
+    {
+      "usuarioId": "00000000-0000-0000-0000-000000000001",
+      "itens": [
+        {
+          "productId": "00000000-0000-0000-0000-000000000001",
+          "quantidade": 3,
+          "precoUnitario": 12.50
+        },
+        {
+          "productId": "00000000-0000-0000-0000-000000000002",
+          "quantidade": 2,
+          "precoUnitario": 8.90
+        },
+        {
+          "productId": "00000000-0000-0000-0000-000000000003",
+          "quantidade": 1,
+          "precoUnitario": 15.80
+        }
+      ]
+    },
+    {
+      "usuarioId": "00000000-0000-0000-0000-000000000002",
+      "itens": [
+        {
+          "productId": "00000000-0000-0000-0000-000000000008",
+          "quantidade": 1,
+          "precoUnitario": 45.00
+        },
+        {
+          "productId": "00000000-0000-0000-0000-000000000009",
+          "quantidade": 1,
+          "precoUnitario": 18.50
+        },
+        {
+          "productId": "00000000-0000-0000-0000-000000000010",
+          "quantidade": 2,
+          "precoUnitario": 22.80
+        }
+      ]
+    },
+    {
+      "usuarioId": "00000000-0000-0000-0000-000000000001",
+      "itens": [
+        {
+          "productId": "00000000-0000-0000-0000-000000000004",
+          "quantidade": 5,
+          "precoUnitario": 2.50
+        },
+        {
+          "productId": "00000000-0000-0000-0000-000000000005",
+          "quantidade": 3,
+          "precoUnitario": 4.20
+        },
+        {
+          "productId": "00000000-0000-0000-0000-000000000006",
+          "quantidade": 2,
+          "precoUnitario": 6.75
+        },
+        {
+          "productId": "00000000-0000-0000-0000-000000000007",
+          "quantidade": 4,
+          "precoUnitario": 3.90
+        }
+      ]
+    }
+  ],
+  "comandos_curl": {
+    "criar_produto": "curl -X POST \"http://localhost:5119/api/products\" -H \"Content-Type: application/json\" -d \"{\\\"nome\\\": \\\"Caderno 96 folhas\\\", \\\"descricao\\\": \\\"Caderno espiral 96 folhas pautadas, capa dura\\\", \\\"preco\\\": 12.50, \\\"status\\\": 1}\"",
+    "criar_pedido": "curl -X POST \"http://localhost:5119/api/orders\" -H \"Content-Type: application/json\" -d \"{\\\"usuarioId\\\": \\\"00000000-0000-0000-0000-000000000001\\\", \\\"itens\\\": [{\\\"productId\\\": \\\"00000000-0000-0000-0000-000000000001\\\", \\\"quantidade\\\": 3, \\\"precoUnitario\\\": 12.50}]}\""
+  }
+} 
