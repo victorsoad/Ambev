@@ -15,58 +15,58 @@ public static class DataSeeder
             {
                 new Product
                 {
-                    Nome = "Cerveja Heineken",
-                    Descricao = "Cerveja premium importada holandesa",
-                    Preco = 8.50m,
+                    Nome = "Caneta Bic Azul",
+                    Descricao = "Caneta esferográfica azul de ponta média",
+                    Preco = 2.50m,
                     Status = ProductStatus.Ativo
                 },
                 new Product
                 {
-                    Nome = "Cerveja Stella Artois",
-                    Descricao = "Cerveja belga premium",
-                    Preco = 7.80m,
+                    Nome = "Lápis Faber-Castell",
+                    Descricao = "Lápis grafite HB para desenho e escrita",
+                    Preco = 1.80m,
                     Status = ProductStatus.Ativo
                 },
                 new Product
                 {
-                    Nome = "Cerveja Budweiser",
-                    Descricao = "Cerveja americana tradicional",
-                    Preco = 6.90m,
+                    Nome = "Caderno Espiral 96 folhas",
+                    Descricao = "Caderno universitário com espiral e capa dura",
+                    Preco = 8.90m,
                     Status = ProductStatus.Ativo
                 },
                 new Product
                 {
-                    Nome = "Cerveja Corona",
-                    Descricao = "Cerveja mexicana com limão",
-                    Preco = 9.20m,
+                    Nome = "Borracha Mercur",
+                    Descricao = "Borracha branca macia para lápis",
+                    Preco = 1.20m,
                     Status = ProductStatus.Ativo
                 },
                 new Product
                 {
-                    Nome = "Cerveja Brahma",
-                    Descricao = "Cerveja brasileira tradicional",
-                    Preco = 5.50m,
+                    Nome = "Régua 30cm",
+                    Descricao = "Régua plástica transparente de 30 centímetros",
+                    Preco = 3.50m,
                     Status = ProductStatus.Ativo
                 },
                 new Product
                 {
-                    Nome = "Cerveja Skol",
-                    Descricao = "Cerveja brasileira popular",
-                    Preco = 5.20m,
+                    Nome = "Tesoura Escolar",
+                    Descricao = "Tesoura com ponta arredondada para uso escolar",
+                    Preco = 4.20m,
                     Status = ProductStatus.Ativo
                 },
                 new Product
                 {
-                    Nome = "Cerveja Antarctica",
-                    Descricao = "Cerveja brasileira clássica",
-                    Preco = 5.80m,
+                    Nome = "Cola Branca 90ml",
+                    Descricao = "Cola branca escolar para papel e cartolina",
+                    Preco = 2.80m,
                     Status = ProductStatus.Ativo
                 },
                 new Product
                 {
-                    Nome = "Cerveja Bohemia",
-                    Descricao = "Cerveja brasileira premium",
-                    Preco = 7.50m,
+                    Nome = "Marca-texto Amarelo",
+                    Descricao = "Marca-texto fluorescente amarelo",
+                    Preco = 3.50m,
                     Status = ProductStatus.Ativo
                 }
             };
@@ -87,7 +87,7 @@ public static class DataSeeder
                     new Order
                     {
                         UsuarioId = Guid.NewGuid(), // Mock user ID
-                        ValorTotal = 25.60m,
+                        ValorTotal = 15.60m,
                         Status = OrderStatus.Criado,
                         Itens = new List<OrderProduct>
                         {
@@ -95,28 +95,40 @@ public static class DataSeeder
                             {
                                 ProductId = products[0].Id,
                                 Quantidade = 3,
-                                PrecoUnitario = 8.50m
+                                PrecoUnitario = 2.50m
+                            },
+                            new OrderProduct
+                            {
+                                ProductId = products[1].Id,
+                                Quantidade = 5,
+                                PrecoUnitario = 1.80m
                             }
                         }
                     },
                     new Order
                     {
                         UsuarioId = Guid.NewGuid(), // Mock user ID
-                        ValorTotal = 45.20m,
+                        ValorTotal = 28.40m,
                         Status = OrderStatus.Pago,
                         Itens = new List<OrderProduct>
                         {
                             new OrderProduct
                             {
-                                ProductId = products[1].Id,
+                                ProductId = products[2].Id,
                                 Quantidade = 2,
-                                PrecoUnitario = 7.80m
+                                PrecoUnitario = 8.90m
                             },
                             new OrderProduct
                             {
-                                ProductId = products[2].Id,
+                                ProductId = products[3].Id,
                                 Quantidade = 4,
-                                PrecoUnitario = 6.90m
+                                PrecoUnitario = 1.20m
+                            },
+                            new OrderProduct
+                            {
+                                ProductId = products[4].Id,
+                                Quantidade = 1,
+                                PrecoUnitario = 3.50m
                             }
                         }
                     }

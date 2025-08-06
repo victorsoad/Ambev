@@ -52,3 +52,10 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+/.vs/ProjectEvaluation/ambev.developerevaluation.metadata.v9.bin
+/.vs/ProjectEvaluation/ambev.developerevaluation.projects.v9.bin
+/.vs/ProjectEvaluation
+/.vs/Ambev.DeveloperEvaluation/v17
+/.vs/Ambev.DeveloperEvaluation/CopilotIndices/17.14.734.62261
+/.vs/Ambev.DeveloperEvaluation/DesignTimeBuild
+/.vs/Ambev.DeveloperEvaluation/FileContentIndex
