@@ -7,6 +7,7 @@ using Ambev.DeveloperEvaluation.Domain.Enums;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using MediatR;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace Ambev.DeveloperEvaluation.Application.Orders.CreateOrder
 {
@@ -15,114 +16,151 @@ namespace Ambev.DeveloperEvaluation.Application.Orders.CreateOrder
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderProductRepository _orderProductRepository;
         private readonly IProductRepository _productRepository;
+        private readonly ILogger<CreateOrderHandler> _logger;
 
         public CreateOrderHandler(
             IOrderRepository orderRepository,
             IOrderProductRepository orderProductRepository,
-            IProductRepository productRepository)
+            IProductRepository productRepository,
+            ILogger<CreateOrderHandler> logger)
         {
             _orderRepository = orderRepository;
             _orderProductRepository = orderProductRepository;
             _productRepository = productRepository;
+            _logger = logger;
         }
 
         public async Task<CreateOrderResult> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
-            // Validar se todos os produtos existem e estão ativos
-            var productIds = request.Itens.Select(i => i.ProductId).ToList();
-            var products = await Task.WhenAll(productIds.Select(id => _productRepository.GetByIdAsync(id)));
-            
-            if (products.Any(p => p == null))
-                throw new InvalidOperationException("Um ou mais produtos não foram encontrados");
+            _logger.LogInformation("Iniciando criação de pedido para usuário {UsuarioId} com {ItemCount} itens", 
+                request.UsuarioId, request.Itens.Count);
 
-            if (products.Any(p => p.Status != ProductStatus.Ativo))
-                throw new InvalidOperationException("Um ou mais produtos estão inativos");
-
-            // Validar limite de 20 itens iguais
-            var itemGroups = request.Itens.GroupBy(i => i.ProductId);
-            foreach (var group in itemGroups)
+            try
             {
-                var totalQuantity = group.Sum(i => i.Quantidade);
-                if (totalQuantity > 20)
+                // Validar se todos os produtos existem e estão ativos
+                var productIds = request.Itens.Select(i => i.ProductId).ToList();
+                _logger.LogDebug("Validando {ProductCount} produtos: {ProductIds}", productIds.Count, string.Join(", ", productIds));
+                
+                var products = await Task.WhenAll(productIds.Select(id => _productRepository.GetByIdAsync(id)));
+                
+                if (products.Any(p => p == null))
                 {
-                    var product = products.First(p => p.Id == group.Key);
-                    throw new InvalidOperationException($"Não é permitido mais de 20 unidades do produto '{product.Nome}' no mesmo pedido");
+                    _logger.LogWarning("Produtos não encontrados para o pedido do usuário {UsuarioId}", request.UsuarioId);
+                    throw new InvalidOperationException("Um ou mais produtos não foram encontrados");
                 }
-            }
 
-            // Calcular valor total sem desconto
-            decimal valorTotalSemDesconto = 0;
-            foreach (var item in request.Itens)
-            {
-                var product = products.First(p => p.Id == item.ProductId);
-                valorTotalSemDesconto += product.Preco * item.Quantidade;
-            }
-
-            // Aplicar regras de desconto
-            decimal descontoPercentual = 0;
-            var totalItens = request.Itens.Sum(i => i.Quantidade);
-
-            // Desconto de 20%: Pedidos com 10 ou mais itens E valor total acima de R$ 100
-            if (totalItens >= 10 && valorTotalSemDesconto > 100)
-            {
-                descontoPercentual = 20;
-            }
-            // Desconto de 10%: Pedidos com 5 ou mais itens OU valor total acima de R$ 50
-            else if (totalItens >= 5 || valorTotalSemDesconto > 50)
-            {
-                descontoPercentual = 10;
-            }
-
-            // Calcular valor final com desconto
-            decimal valorDesconto = valorTotalSemDesconto * (descontoPercentual / 100);
-            decimal valorTotal = valorTotalSemDesconto - valorDesconto;
-
-            // Criar o pedido
-            var order = new Order
-            {
-                UsuarioId = request.UsuarioId,
-                ValorTotal = valorTotal,
-                Status = OrderStatus.Criado
-            };
-
-            await _orderRepository.AddAsync(order);
-
-            // Criar os itens do pedido
-            var orderItems = new List<OrderProduct>();
-            foreach (var item in request.Itens)
-            {
-                var product = products.First(p => p.Id == item.ProductId);
-                var orderProduct = new OrderProduct
+                if (products.Any(p => p.Status != ProductStatus.Ativo))
                 {
-                    OrderId = order.Id,
-                    ProductId = item.ProductId,
-                    Quantidade = item.Quantidade,
-                    PrecoUnitario = product.Preco
+                    _logger.LogWarning("Produtos inativos encontrados para o pedido do usuário {UsuarioId}", request.UsuarioId);
+                    throw new InvalidOperationException("Um ou mais produtos estão inativos");
+                }
+
+                // Validar limite de 20 itens iguais
+                var itemGroups = request.Itens.GroupBy(i => i.ProductId);
+                foreach (var group in itemGroups)
+                {
+                    var totalQuantity = group.Sum(i => i.Quantidade);
+                    if (totalQuantity > 20)
+                    {
+                        var product = products.First(p => p.Id == group.Key);
+                        _logger.LogWarning("Limite de 20 unidades excedido para produto {ProductName} (ID: {ProductId}) no pedido do usuário {UsuarioId}", 
+                            product.Nome, product.Id, request.UsuarioId);
+                        throw new InvalidOperationException($"Não é permitido mais de 20 unidades do produto '{product.Nome}' no mesmo pedido");
+                    }
+                }
+
+                // Calcular valor total sem desconto
+                decimal valorTotalSemDesconto = 0;
+                foreach (var item in request.Itens)
+                {
+                    var product = products.First(p => p.Id == item.ProductId);
+                    valorTotalSemDesconto += product.Preco * item.Quantidade;
+                }
+
+                _logger.LogDebug("Valor total sem desconto: {ValorTotalSemDesconto:C}", valorTotalSemDesconto);
+
+                // Aplicar regras de desconto
+                decimal descontoPercentual = 0;
+                var totalItens = request.Itens.Sum(i => i.Quantidade);
+
+                // Desconto de 20%: Pedidos com 10 ou mais itens E valor total acima de R$ 100
+                if (totalItens >= 10 && valorTotalSemDesconto > 100)
+                {
+                    descontoPercentual = 20;
+                    _logger.LogInformation("Aplicando desconto de 20% - Pedido com {TotalItens} itens e valor R$ {ValorTotal}", 
+                        totalItens, valorTotalSemDesconto);
+                }
+                // Desconto de 10%: Pedidos com 5 ou mais itens OU valor total acima de R$ 50
+                else if (totalItens >= 5 || valorTotalSemDesconto > 50)
+                {
+                    descontoPercentual = 10;
+                    _logger.LogInformation("Aplicando desconto de 10% - Pedido com {TotalItens} itens e valor R$ {ValorTotal}", 
+                        totalItens, valorTotalSemDesconto);
+                }
+
+                // Calcular valor final com desconto
+                decimal valorDesconto = valorTotalSemDesconto * (descontoPercentual / 100);
+                decimal valorTotal = valorTotalSemDesconto - valorDesconto;
+
+                _logger.LogDebug("Valor do desconto: {ValorDesconto:C}, Valor final: {ValorTotal:C}", valorDesconto, valorTotal);
+
+                // Criar o pedido
+                var order = new Order
+                {
+                    UsuarioId = request.UsuarioId,
+                    ValorTotal = valorTotal,
+                    Status = OrderStatus.Criado
                 };
-                await _orderProductRepository.AddAsync(orderProduct);
-                orderItems.Add(orderProduct);
-            }
 
-            // Retornar resultado
-            return new CreateOrderResult
-            {
-                Id = order.Id,
-                UsuarioId = order.UsuarioId,
-                ValorTotal = order.ValorTotal,
-                ValorTotalSemDesconto = valorTotalSemDesconto,
-                ValorDesconto = valorDesconto,
-                PercentualDesconto = descontoPercentual,
-                Status = (int)order.Status,
-                DataCriacao = order.DataCriacao,
-                Itens = orderItems.Select(op => new OrderItemResult
+                await _orderRepository.AddAsync(order);
+                _logger.LogInformation("Pedido criado com sucesso - ID: {OrderId}, Usuário: {UsuarioId}, Valor: {ValorTotal:C}", 
+                    order.Id, order.UsuarioId, order.ValorTotal);
+
+                // Criar os itens do pedido
+                var orderItems = new List<OrderProduct>();
+                foreach (var item in request.Itens)
                 {
-                    Id = op.Id,
-                    ProductId = op.ProductId,
-                    ProductName = products.First(p => p.Id == op.ProductId).Nome,
-                    Quantidade = op.Quantidade,
-                    PrecoUnitario = op.PrecoUnitario
-                }).ToList()
-            };
+                    var product = products.First(p => p.Id == item.ProductId);
+                    var orderProduct = new OrderProduct
+                    {
+                        OrderId = order.Id,
+                        ProductId = item.ProductId,
+                        Quantidade = item.Quantidade,
+                        PrecoUnitario = product.Preco
+                    };
+                    await _orderProductRepository.AddAsync(orderProduct);
+                    orderItems.Add(orderProduct);
+                }
+
+                _logger.LogInformation("Pedido finalizado com sucesso - ID: {OrderId}, {ItemCount} itens adicionados", 
+                    order.Id, orderItems.Count);
+
+                // Retornar resultado
+                return new CreateOrderResult
+                {
+                    Id = order.Id,
+                    UsuarioId = order.UsuarioId,
+                    ValorTotal = order.ValorTotal,
+                    ValorTotalSemDesconto = valorTotalSemDesconto,
+                    ValorDesconto = valorDesconto,
+                    PercentualDesconto = descontoPercentual,
+                    Status = (int)order.Status,
+                    DataCriacao = order.DataCriacao,
+                    Itens = orderItems.Select(op => new OrderItemResult
+                    {
+                        Id = op.Id,
+                        ProductId = op.ProductId,
+                        ProductName = products.First(p => p.Id == op.ProductId).Nome,
+                        Quantidade = op.Quantidade,
+                        PrecoUnitario = op.PrecoUnitario
+                    }).ToList()
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao criar pedido para usuário {UsuarioId}", request.UsuarioId);
+                throw;
+            }
         }
     }
 } 

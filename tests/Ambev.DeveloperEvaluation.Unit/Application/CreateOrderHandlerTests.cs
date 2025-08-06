@@ -6,6 +6,7 @@ using AutoMapper;
 using FluentAssertions;
 using NSubstitute;
 using Xunit;
+using Microsoft.Extensions.Logging;
 
 namespace Ambev.DeveloperEvaluation.Unit.Application;
 
@@ -17,6 +18,7 @@ public class CreateOrderHandlerTests
     private readonly IOrderRepository _orderRepository;
     private readonly IOrderProductRepository _orderProductRepository;
     private readonly IProductRepository _productRepository;
+    private readonly ILogger<CreateOrderHandler> _logger;
     private readonly CreateOrderHandler _handler;
 
     /// <summary>
@@ -28,7 +30,8 @@ public class CreateOrderHandlerTests
         _orderRepository = Substitute.For<IOrderRepository>();
         _orderProductRepository = Substitute.For<IOrderProductRepository>();
         _productRepository = Substitute.For<IProductRepository>();
-        _handler = new CreateOrderHandler(_orderRepository, _orderProductRepository, _productRepository);
+        _logger = Substitute.For<ILogger<CreateOrderHandler>>();
+        _handler = new CreateOrderHandler(_orderRepository, _orderProductRepository, _productRepository, _logger);
     }
 
     /// <summary>
