@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Ambev.DeveloperEvaluation.WebApi.Features.Orders.CreateOrder
 {
     public class CreateOrderResponse

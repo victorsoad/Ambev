@@ -1,6 +1,6 @@
 @Ambev.DeveloperEvaluation.WebApi_HostAddress = http://localhost:5119
 
-GET {{Ambev.DeveloperEvaluation.WebApi_HostAddress}}/weatherforecast/
+GET {{Ambev.DeveloperEvaluation.WebApi_HostAddress}}/Product/
 Accept: application/json
 
 ###

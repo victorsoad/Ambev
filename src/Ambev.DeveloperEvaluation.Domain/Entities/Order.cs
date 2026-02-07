@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Enums;
 

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Ambev.DeveloperEvaluation.Application.Orders.CreateOrder
 {
     public class CreateOrderResult

@@ -1,4 +1,3 @@
-using System;
 using Ambev.DeveloperEvaluation.Domain.Common;
 
 namespace Ambev.DeveloperEvaluation.Domain.Entities
